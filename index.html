@@ -3,146 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My&U</title>
+    <title>My&U | طقم 2GETR</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Tajawal:wght@400;700&display=swap');
+        
+        body, header, .container, #checkout-page, form, .summary-box, input, select, textarea { 
+            background-color: #ffffff !important; 
+            color: #000; 
         }
-
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background: #ffffff;
-            height: 100vh;
+        
+        body { font-family: 'Tajawal', sans-serif; margin: 0; padding: 0; }
+        header { display: flex; justify-content: center; padding: 20px; border-bottom: 1px solid #eee; }
+        header img { max-width: 90px; height: auto; }
+        
+        .container { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; padding: 40px; max-width: 1200px; margin: 0 auto; }
+        
+        .gallery-wrapper { position: relative; width: 100%; max-width: 500px; margin: 0 auto; }
+        .main-image { width: 100%; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: block; }
+        
+        .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
+            transition: background 0.3s;
         }
+        .nav-btn:hover { background-color: rgba(0, 0, 0, 0.9); }
+        .nav-btn.prev { left: 10px; }
+        .nav-btn.next { right: 10px; }
+        
+        .thumbnails { display: flex; justify-content: center; gap: 15px; margin-top: 20px; }
+        .thumb { width: 80px; height: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; cursor: pointer; transition: 0.3s; }
+        .thumb.active, .swatch.active { border-color: #000; transform: scale(1.05); }
+        
+        .details h1 { font-family: 'Playfair Display', serif; font-size: 2.2rem; margin-bottom: 20px; }
+        .prices { margin-bottom: 20px; }
+        .old-price { color: #999; text-decoration: line-through; font-size: 1.2rem; margin-right: 15px; }
+        .current-price { color: #e74c3c; font-size: 2.5rem; font-weight: bold; }
+        
+        .details-toggle { font-size: 0.8rem; color: #555; cursor: pointer; text-decoration: underline; margin-bottom: 10px; display: inline-block; }
+        #more-details { display: none; background: #f9f9f9; border: 1px solid #eee; border-radius: 8px; padding: 15px; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6; }
+        
+        .section-title { font-weight: bold; margin-bottom: 10px; margin-top: 20px; }
+        .swatches { display: flex; gap: 10px; align-items: center; }
+        .swatch { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ccc; cursor: pointer; }
+        #color-name-display { font-weight: bold; margin-right: 15px; font-size: 1.1rem; }
+        
+        .size-btn { padding: 10px 15px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; font-family: 'Tajawal', sans-serif; background: #fff; color: #000; }
+        .size-btn.active { background: #000; color: #fff; border-color: #000; }
+        
+        .qty-section { display: flex; align-items: center; gap: 15px; margin-top: 20px; }
+        .qty-btn { width: 40px; height: 40px; border-radius: 50%; border: 1px solid #ccc; background: #fff; font-size: 20px; cursor: pointer; color: #000; }
+        
+        #dynamic-items-container { display: none; }
+        .item-section { border: 1px solid #ddd; border-radius: 8px; padding: 15px; margin-bottom: 10px; background: #fafafa; }
+        .item-title { font-weight: bold; margin-bottom: 10px; }
+        
+        .order-btn { background-color: #000; color: white; font-size: 1.2rem; padding: 15px; border: none; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 30px; font-family: 'Tajawal', sans-serif; }
+        .order-btn:hover { background-color: #444; }
+        .order-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        .splash-container {
-            text-align: center;
-            animation: fadeIn 1.5s ease;
+        #checkout-page { display: none; padding: 40px; max-width: 600px; margin: 0 auto; }
+        .back-btn { background: #eee; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; margin-bottom: 20px; font-family: 'Tajawal', sans-serif; color: #000; }
+        
+        /* تنسيق جديد لصور المنتجات المتعددة في الفاتورة */
+        .checkout-images-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
         }
-
-        .logo {
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 30px;
-            display: block;
-            animation: pulse 1.5s ease infinite;
+        .checkout-images-container img {
+            width: 40%;
+            max-width: 150px;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            object-fit: cover;
         }
-
-        .brand-name {
-            font-family: 'Playfair Display', serif;
-            font-size: 3.5rem;
-            font-weight: 700;
-            color: #000;
-            position: relative;
-            display: inline-block;
-        }
-
-        .brand-name::after {
-            content: '|';
-            animation: blink 0.8s step-end infinite;
-            margin-right: 5px;
-            color: #000;
-        }
-
-        .cursor-blink {
-            display: inline-block;
-            width: 3px;
-            height: 40px;
-            background: #000;
-            animation: blink 0.8s step-end infinite;
-            vertical-align: middle;
-            margin-right: 5px;
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0; }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        .loading-bar {
-            width: 200px;
-            height: 4px;
-            background: #eee;
-            border-radius: 2px;
-            margin: 30px auto 0;
-            overflow: hidden;
-        }
-
-        .loading-progress {
-            width: 0%;
-            height: 100%;
-            background: #000;
-            border-radius: 2px;
-            animation: load 2s ease forwards;
-        }
-
-        @keyframes load {
-            from { width: 0%; }
-            to { width: 100%; }
-        }
-
-        .sub-text {
-            color: #888;
-            font-size: 0.9rem;
-            margin-top: 15px;
-            letter-spacing: 2px;
-        }
+        
+        .summary-box { background: #f8f8f8 !important; padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #eee; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px dashed #ddd; padding-bottom: 10px; }
+        .summary-row.discount { color: #e74c3c; font-weight: bold; }
+        .summary-row.total { font-size: 1.5rem; font-weight: bold; border: none; margin-top: 10px; color: #000; }
+        
+        input, select, textarea { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; font-family: 'Tajawal', sans-serif; box-sizing: border-box; color: #000; background: #fff; }
+        label { font-weight: bold; display: block; margin-bottom: 5px; color: #000; }
+        
+        @media (max-width: 768px) { .container { grid-template-columns: 1fr; padding: 20px; } }
     </style>
 </head>
 <body>
 
-<div class="splash-container">
-    <img src="image_4.png" alt="My&U" class="logo" onerror="this.style.display='none'">
-    
-    <div class="brand-name" id="brandText"></div>
-    
-    <div class="loading-bar">
-        <div class="loading-progress"></div>
+    <div id="main-page">
+        <header>
+            <img src="image_4.png" alt="My&U Logo" onerror="this.style.display='none'">
+        </header>
+
+        <div class="container">
+            <div class="gallery">
+                <div class="gallery-wrapper">
+                    <button class="nav-btn prev" onclick="navigateImage(-1)">&#10094;</button>
+                    <img id="mainImage" src="beige_1.png" class="main-image" alt="طقم 2GETR">
+                    <button class="nav-btn next" onclick="navigateImage(1)">&#10095;</button>
+                </div>
+
+                <div class="thumbnails">
+                    <img src="beige_1.png" class="thumb active" onclick="selectColor('beige')">
+                    <img src="green_1.png" class="thumb" onclick="selectColor('green')">
+                    <img src="grey_1.png" class="thumb" onclick="selectColor('grey')">
+                </div>
+            </div>
+
+            <div class="details">
+                <h1>طقم 2GETR الصيفي للأطفال من My&U</h1>
+                
+                <div class="prices">
+                    <span class="old-price">900 ج</span>
+                    <span class="current-price">700 ج</span>
+                </div>
+
+                <span class="details-toggle" onclick="toggleDetails()">(اضغط لعرض تفاصيل أكثر)</span>
+                <div id="more-details">
+                    (🌟 طقم أطفال شيك وعصري 🌟<br>
+                    👕 خامة إنترلوك قطن 100% ناعمة ومريحة على بشرة الأطفال، مناسبة للخروج واللعب.<br>
+                    تصميم مميز وخامة عالية الجودة تمنح طفلك الراحة والأناقة طوال اليوم.)
+                </div>
+
+                <div class="section-title">الألوان المتاحة:</div>
+                <div class="swatches">
+                    <div class="swatch active" style="background-color: #D9C9A9;" onclick="selectColor('beige')" title="بيج"></div>
+                    <div class="swatch" style="background-color: #6D7D5C;" onclick="selectColor('green')" title="زيتي"></div>
+                    <div class="swatch" style="background-color: #5F666F;" onclick="selectColor('grey')" title="رمادي"></div>
+                    <span id="color-name-display">اللون: بيج</span>
+                </div>
+
+                <div class="section-title">اختر المقاس (من 2 إلى 12 سنة):</div>
+                <div class="sizes" id="sizes-container"></div>
+
+                <div class="section-title">العدد المطلوب:</div>
+                <div class="qty-section">
+                    <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                    <span id="qty-display" style="font-size: 1.5rem; font-weight: bold;">1</span>
+                    <button class="qty-btn" onclick="updateQty(1)">+</button>
+                    <span style="color: green; font-weight: bold; margin-right: 15px;">(خصم 200ج لكل قطعتين)</span>
+                </div>
+
+                <div id="dynamic-items-container"></div>
+
+                <button class="order-btn" onclick="goToCheckout()">اطلب الآن</button>
+            </div>
+        </div>
     </div>
-    
-    <div class="sub-text">أفضل تشكيلة صيفية للأطفال</div>
-</div>
 
-<script>
-    // تأثير الكتابة اليدوية
-    const text = "انا و انت معآ ❤";
-    let index = 0;
-    const brandElement = document.getElementById('brandText');
+    <div id="checkout-page">
+        <button class="back-btn" onclick="goBack()">← الرجوع للمنتج</button>
+        <h1 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">إتمام الطلب</h1>
 
-    function typeWriter() {
-        if (index < text.length) {
-            brandElement.innerHTML = text.substring(0, index + 1) + '<span class="cursor-blink"></span>';
-            index++;
-            setTimeout(typeWriter, 150);
-        } else {
-            brandElement.innerHTML = text + '<span class="cursor-blink" style="animation: blink 0.8s step-end infinite;"></span>';
+        <!-- التعديل الجديد: حاوية الصور (تتغير حسب عدد القطع والوانها) -->
+        <div class="checkout-images-container" id="checkout-images-container">
+            <!-- سيتم وضع الصور هنا ديناميكياً -->
+        </div>
+
+        <div class="summary-box">
+            <div class="summary-row"><span>المنتج:</span> <span>طقم 2GETR</span></div>
+            <div id="checkout-items-details"></div>
+            <div class="summary-row"><span>عدد القطع:</span> <span id="sum-qty"></span></div>
+            
+            <div class="summary-row" id="original-summary-row"><span>السعر قبل الخصم:</span> <span id="sum-original"></span></div>
+            <div class="summary-row discount" id="discount-summary-row"><span>الخصم المطبق:</span> <span id="sum-discount"></span></div>
+            
+            <div class="summary-row"><span>سعر المنتج:</span> <span id="sum-price"></span></div>
+            <div class="summary-row"><span>مصاريف الشحن:</span> <span id="sum-shipping">65 ج</span></div>
+            <div class="summary-row total"><span>الإجمالي النهائي:</span> <span id="sum-total"></span></div>
+        </div>
+
+        <form onsubmit="submitOrder(event)">
+            <label>رقم الهاتف:</label>
+            <input type="tel" id="phone" required placeholder="01xxxxxxxxx">
+            
+            <label>المحافظة:</label>
+            <select id="governorate" required>
+                <option value="">اختر المحافظة</option>
+                <option>القاهرة</option>
+                <option>الجيزة</option>
+                <option>الإسكندرية</option>
+                <option>القليوبية</option>
+                <option>الدقهلية</option>
+                <option>الشرقية</option>
+                <option>الغربية</option>
+                <option>المنوفية</option>
+                <option>البحيرة</option>
+                <option>كفر الشيخ</option>
+                <option>دمياط</option>
+                <option>بورسعيد</option>
+                <option>الإسماعيلية</option>
+                <option>السويس</option>
+                <option>شمال سيناء</option>
+                <option>جنوب سيناء</option>
+                <option>بني سويف</option>
+                <option>الفيوم</option>
+                <option>المنيا</option>
+                <option>أسيوط</option>
+                <option>سوهاج</option>
+                <option>قنا</option>
+                <option>الأقصر</option>
+                <option>أسوان</option>
+                <option>البحر الأحمر</option>
+                <option>الوادي الجديد</option>
+                <option>مطروح</option>
+            </select>
+
+            <label>العنوان بالتفصيل:</label>
+            <textarea id="address" rows="3" required placeholder="اسم الشارع، رقم العمارة، الدور، الشقة..."></textarea>
+
+            <button type="submit" class="order-btn" style="margin-top: 10px;">تأكيد الطلب</button>
+        </form>
+    </div>
+
+    <script>
+        const TELEGRAM_BOT_TOKEN = "8421587672:AAGLKUmRaoclQ3uvp_t5QojQH05fFPQfdFQ";
+        const TELEGRAM_CHAT_ID = "5749060658";
+        
+        const colorSets = {
+            'beige': { name: 'بيج', images: ['beige_1.png', 'https://ibb.co/kg5PW7Cm', 'beige_3.png', 'beige_4.png'] },
+            'green': { name: 'زيتي', images: ['green_1.png', 'green_2.png', 'green_3.png', 'green_4.png'] },
+            'grey':  { name: 'رمادي', images: ['grey_1.png', 'grey_2.png', 'grey_3.png', 'grey_4.png'] }
+        };
+
+        let currentColorKey = 'beige';
+        let currentImages = colorSets[currentColorKey].images;
+        let currentIndex = 0;
+        let isAnimating = false;
+
+        let qty = 1;
+        let subTotal = 700;
+        let originalTotal = 700;
+        let discount = 0;
+        let currentSize = 2;
+        const shippingFee = 65;
+
+        const sizesContainer = document.getElementById('sizes-container');
+        for (let i = 2; i <= 12; i++) {
+            let btn = document.createElement('button');
+            btn.className = 'size-btn' + (i === 2 ? ' active' : '');
+            btn.innerText = i;
+            btn.onclick = function() { 
+                document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentSize = i;
+            };
+            sizesContainer.appendChild(btn);
         }
-    }
 
-    // بدء التأثير
-    setTimeout(typeWriter, 300);
+        function toggleDetails() {
+            const details = document.getElementById('more-details');
+            if (details.style.display === 'none' || details.style.display === '') {
+                details.style.display = 'block';
+            } else {
+                details.style.display = 'none';
+            }
+        }
 
-    // الانتقال للصفحة الرئيسية بعد 2.5 ثانية
-    setTimeout(() => {
-        window.location.href = 'splash.html';
-    }, 2500);
-</script>
+        function navigateImage(direction) {
+            if (isAnimating) return;
+            isAnimating = true;
+            const img = document.getElementById('mainImage');
+            currentIndex = (currentIndex + direction + currentImages.length) % currentImages.length;
+            img.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+            
+            if (direction === 1) {
+                img.style.transform = 'translateX(-80px)'; img.style.opacity = '0';
+                setTimeout(() => {
+                    img.src = currentImages[currentIndex];
+                    img.style.transition = 'none'; img.style.transform = 'translateX(80px)'; img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+                        img.style.transform = 'translateX(0)'; img.style.opacity = '1'; isAnimating = false;
+                    }, 20);
+                }, 400);
+            } else {
+                img.style.transform = 'translateX(80px)'; img.style.opacity = '0';
+                setTimeout(() => {
+                    img.src = currentImages[currentIndex];
+                    img.style.transition = 'none'; img.style.transform = 'translateX(-80px)'; img.style.opacity = '0';
+                    setTimeout(() => {
+                        img.style.transition = 'transform 0.4s ease, opacity 0.4s ease';
+                        img.style.transform = 'translateX(0)'; img.style.opacity = '1'; isAnimating = false;
+                    }, 20);
+                }, 400);
+            }
+        }
 
+        function selectColor(colorKey) {
+            if (colorKey === currentColorKey) return;
+            currentColorKey = colorKey;
+            currentImages = colorSets[colorKey].images;
+            currentIndex = 0;
+            
+            const img = document.getElementById('mainImage');
+            img.style.transition = 'none'; img.style.opacity = '0';
+            setTimeout(() => {
+                img.src = currentImages[currentIndex];
+                img.style.transition = 'opacity 0.4s ease'; img.style.opacity = '1';
+            }, 50);
+            
+            const thumbnails = document.querySelectorAll('.thumb');
+            thumbnails.forEach(t => t.classList.remove('active'));
+            if (colorKey === 'beige') thumbnails[0].classList.add('active');
+            if (colorKey === 'green') thumbnails[1].classList.add('active');
+            if (colorKey === 'grey') thumbnails[2].classList.add('active');
+
+            document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+            const swatchIndex = colorKey === 'beige' ? 0 : (colorKey === 'green' ? 1 : 2);
+            document.querySelectorAll('.swatch')[swatchIndex].classList.add('active');
+            document.getElementById('color-name-display').innerText = 'اللون: ' + colorSets[colorKey].name;
+        }
+
+        function updateQty(delta) {
+            qty += delta;
+            if (qty < 1) qty = 1;
+            document.getElementById('qty-display').innerText = qty;
+            
+            subTotal = (Math.floor(qty / 2) * 1200) + ((qty % 2) * 700);
+            originalTotal = qty * 700; 
+            discount = originalTotal - subTotal;
+            
+            const container = document.getElementById('dynamic-items-container');
+            if (qty === 1) {
+                container.style.display = 'none';
+                container.innerHTML = ''; 
+            } else {
+                container.style.display = 'block';
+                renderItemsDetails();
+            }
+        }
+
+        function renderItemsDetails() {
+            const container = document.getElementById('dynamic-items-container');
+            container.innerHTML = ''; 
+
+            for (let i = 0; i < qty; i++) {
+                const div = document.createElement('div');
+                div.className = 'item-section';
+                div.innerHTML = `
+                    <div class="item-title">القطعة ${i + 1}</div>
+                    <label>اللون</label>
+                    <select id="item-${i+1}-color">
+                        <option value="بيج">بيج</option>
+                        <option value="زيتي">زيتي</option>
+                        <option value="رمادي">رمادي</option>
+                    </select>
+                    <label>المقاس</label>
+                    <select id="item-${i+1}-size">
+                        ${Array.from({length: 11}, (_, j) => `<option value="${j+2}">${j+2}</option>`).join('')}
+                    </select>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        // التعديل الرئيسي: دالة توليد صور المنتج في الفاتورة
+        function goToCheckout() {
+            document.getElementById('main-page').style.display = 'none';
+            document.getElementById('checkout-page').style.display = 'block';
+            window.scrollTo(0, 0);
+
+            // 1. توليد صور المنتج
+            const imagesContainer = document.getElementById('checkout-images-container');
+            imagesContainer.innerHTML = ''; // تنظيف الصور السابقة
+
+            if (qty === 1) {
+                // صورة واحدة (اللون المختار من المعرض)
+                const img = document.createElement('img');
+                img.src = currentImages[currentIndex];
+                imagesContainer.appendChild(img);
+            } else {
+                // أكثر من قطعة: نأخذ الصورة الأولى للون المختار في كل قطعة
+                for (let i = 0; i < qty; i++) {
+                    const colorName = document.getElementById(`item-${i+1}-color`).value;
+                    
+                    // البحث عن مفتاح اللون المطابق
+                    const colorKey = Object.keys(colorSets).find(key => colorSets[key].name === colorName);
+                    
+                    if (colorKey) {
+                        const img = document.createElement('img');
+                        img.src = colorSets[colorKey].images[0]; // استخدام أول صورة من مجموعة هذا اللون
+                        imagesContainer.appendChild(img);
+                    }
+                }
+            }
+
+            // 2. توليد تفاصيل الطلب النصية
+            let itemsDetailsHTML = '';
+            if (qty === 1) {
+                const color = colorSets[currentColorKey].name;
+                const size = currentSize;
+                itemsDetailsHTML += `
+                    <div class="summary-row">
+                        <span>القطعة 1:</span>
+                        <span>${color} - مقاس ${size}</span>
+                    </div>
+                `;
+            } else {
+                for (let i = 0; i < qty; i++) {
+                    const color = document.getElementById(`item-${i+1}-color`).value;
+                    const size = document.getElementById(`item-${i+1}-size`).value;
+                    itemsDetailsHTML += `
+                        <div class="summary-row">
+                            <span>القطعة ${i+1}:</span>
+                            <span>${color} - مقاس ${size}</span>
+                        </div>
+                    `;
+                }
+            }
+            document.getElementById('checkout-items-details').innerHTML = itemsDetailsHTML;
+
+            // 3. الحسابات النهائية
+            document.getElementById('sum-qty').innerText = qty + ' قطعة';
+            document.getElementById('sum-price').innerText = subTotal + ' ج';
+            document.getElementById('sum-total').innerText = (subTotal + shippingFee) + ' ج';
+
+            const originalRow = document.getElementById('original-summary-row');
+            const discountRow = document.getElementById('discount-summary-row');
+            
+            if (qty === 1) {
+                originalRow.style.display = 'none';
+                discountRow.style.display = 'none';
+            } else {
+                originalRow.style.display = 'flex';
+                discountRow.style.display = 'flex';
+                document.getElementById('sum-original').innerText = originalTotal + ' ج';
+                document.getElementById('sum-discount').innerText = "- " + discount + " ج";
+            }
+        }
+
+        function goBack() {
+            document.getElementById('main-page').style.display = 'block';
+            document.getElementById('checkout-page').style.display = 'none';
+        }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            const submitBtn = document.querySelector('#checkout-page button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "جاري إرسال الطلب...";
+
+            let itemsDetails = [];
+            if (qty === 1) {
+                const color = colorSets[currentColorKey].name;
+                const size = currentSize;
+                itemsDetails.push(`قطعة 1: ${color} - مقاس ${size}`);
+            } else {
+                for (let i = 0; i < qty; i++) {
+                    const color = document.getElementById(`item-${i+1}-color`).value;
+                    const size = document.getElementById(`item-${i+1}-size`).value;
+                    itemsDetails.push(`قطعة ${i+1}: ${color} - مقاس ${size}`);
+                }
+            }
+
+            const phone = document.getElementById('phone').value;
+            const gov = document.getElementById('governorate').value;
+            const address = document.getElementById('address').value;
+
+            let message = `
+🛒 *طلب جديد من موقع My&U*
+———————————
+👕 *المنتج:* طقم 2GETR
+📦 *تفاصيل القطع:*
+${itemsDetails.join('\n')}
+———————————
+📞 *رقم الهاتف:* ${phone}
+📍 *المحافظة:* ${gov}
+🏠 *العنوان:* ${address}
+———————————
+💵 *سعر المنتج:* ${subTotal} ج
+🚚 *الشحن:* ${shippingFee} ج
+✅ *الإجمالي النهائي:* ${subTotal + shippingFee} ج
+`;
+
+            if (qty > 1) {
+                message = `
+🛒 *طلب جديد من موقع My&U*
+———————————
+👕 *المنتج:* طقم 2GETR
+📦 *تفاصيل القطع:*
+${itemsDetails.join('\n')}
+———————————
+📞 *رقم الهاتف:* ${phone}
+📍 *المحافظة:* ${gov}
+🏠 *العنوان:* ${address}
+———————————
+💰 *السعر قبل الخصم:* ${originalTotal} ج
+🎁 *الخصم:* -${discount} ج
+💵 *السعر بعد الخصم:* ${subTotal} ج
+🚚 *الشحن:* ${shippingFee} ج
+✅ *الإجمالي النهائي:* ${subTotal + shippingFee} ج
+`;
+            }
+
+            try {
+                const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
+                });
+                const data = await response.json();
+                
+                if (data.ok) {
+                    alert("شكراً لطلبك من براند My&U! ❤\nتم استلام طلبك بنجاح، وسيتم التواصل معك قريباً لتأكيده.");
+                    document.getElementById('phone').value = '';
+                    document.getElementById('address').value = '';
+                    document.getElementById('governorate').selectedIndex = 0;
+                } else {
+                    alert("حدث خطأ في التوكن أو المعرف. تأكد من صحتهما.");
+                }
+            } catch (error) {
+                alert("تعذر الاتصال بخادم التليجرام. تأكد من الإنترنت.");
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "تأكيد الطلب";
+            }
+        }
+        
+        updateQty(0); 
+        selectColor('beige');
+    </script>
 </body>
 </html>
