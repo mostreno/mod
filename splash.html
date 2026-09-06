@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My&U | طقم 2GETR</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- الصفحة الرئيسية -->
+<div id="main-page">
+    <header>
+        <img src="image_4.png" alt="My&U Logo" onerror="this.style.display='none'">
+        <div class="header-promo">🔥 عرض خاص: خصم 200ج لكل قطعتين</div>
+    </header>
+
+    <div class="container">
+        <!-- قسم المعرض -->
+        <div class="gallery">
+            <div class="gallery-wrapper">
+                <button class="nav-btn prev" onclick="navigateImage(-1)">&#10094;</button>
+                <div class="image-container" id="imageContainer">
+                    <img id="mainImage" src="beige_1.png" class="main-image" alt="طقم 2GETR" onclick="flipCard()">
+                    <div class="card-back" id="cardBack">
+                        <p class="marketing-text" id="marketingText"></p>
+                    </div>
+                </div>
+                <button class="nav-btn next" onclick="navigateImage(1)">&#10095;</button>
+            </div>
+
+            <div class="thumbnails">
+                <img src="beige_1.png" class="thumb active" onclick="selectColor('beige')">
+                <img src="green_1.png" class="thumb" onclick="selectColor('green')">
+                <img src="grey_1.png" class="thumb" onclick="selectColor('grey')">
+            </div>
+
+            <!-- مؤشر المشترين -->
+            <div class="social-proof">
+                <span>👥 ${Math.floor(Math.random() * 50 + 20)} شخص يشاهدون هذا المنتج الآن</span>
+                <span>⭐ 4.9/5 (${Math.floor(Math.random() * 100 + 50)} تقييم)</span>
+            </div>
+        </div>
+
+        <!-- قسم التفاصيل -->
+        <div class="details">
+            <h1>طقم 2GETR الصيفي للأطفال من My&U</h1>
+            
+            <div class="prices">
+                <span class="old-price">900 ج</span>
+                <span class="current-price">700 ج</span>
+                <span class="discount-badge">-22%</span>
+            </div>
+
+            <!-- مؤقت تنازلي -->
+            <div class="timer">
+                ⏰ ينتهي العرض في: <span id="countdown">24:00:00</span>
+            </div>
+
+            <span class="details-toggle" onclick="toggleDetails()">📖 اضغط لعرض تفاصيل أكثر</span>
+            <div id="more-details">
+                🌟 طقم أطفال شيك وعصري 🌟<br>
+                👕 خامة إنترلوك قطن 100% ناعمة ومريحة على بشرة الأطفال<br>
+                ✨ تصميم مميز وخامة عالية الجودة تمنح طفلك الراحة والأناقة
+            </div>
+
+            <div class="section-title">🌍 اختر دولتك:</div>
+            <div class="country-selector">
+                <select id="countryCode" onchange="updatePhonePrefix()">
+                    <option value="+20">🇪🇬 مصر (+20)</option>
+                    <option value="+966">🇸🇦 السعودية (+966)</option>
+                    <option value="+971">🇦🇪 الإمارات (+971)</option>
+                    <option value="+974">🇶🇦 قطر (+974)</option>
+                    <option value="+965">🇰🇼 الكويت (+965)</option>
+                    <option value="+968">🇴🇲 عُمان (+968)</option>
+                    <option value="+973">🇧🇭 البحرين (+973)</option>
+                    <option value="+962">🇯🇴 الأردن (+962)</option>
+                    <option value="+961">🇱🇧 لبنان (+961)</option>
+                    <option value="+212">🇲🇦 المغرب (+212)</option>
+                    <option value="+216">🇹🇳 تونس (+216)</option>
+                    <option value="+213">🇩🇿 الجزائر (+213)</option>
+                    <option value="+218">🇱🇾 ليبيا (+218)</option>
+                    <option value="+249">🇸🇩 السودان (+249)</option>
+                    <option value="+967">🇾🇪 اليمن (+967)</option>
+                    <option value="+90">🇹🇷 تركيا (+90)</option>
+                    <option value="+44">🇬🇧 بريطانيا (+44)</option>
+                    <option value="+1">🇺🇸 أمريكا (+1)</option>
+                </select>
+            </div>
+
+            <div class="section-title">الألوان المتاحة:</div>
+            <div class="swatches">
+                <div class="swatch active" style="background-color: #D9C9A9;" onclick="selectColor('beige')" title="بيج"></div>
+                <div class="swatch" style="background-color: #6D7D5C;" onclick="selectColor('green')" title="زيتي"></div>
+                <div class="swatch" style="background-color: #5F666F;" onclick="selectColor('grey')" title="رمادي"></div>
+                <span id="color-name-display">اللون: بيج</span>
+            </div>
+
+            <div class="section-title">اختر المقاس (من 2 إلى 12 سنة):</div>
+            <div class="sizes" id="sizes-container"></div>
+
+            <div class="section-title">العدد المطلوب:</div>
+            <div class="qty-section">
+                <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                <span id="qty-display" style="font-size: 1.5rem; font-weight: bold;">1</span>
+                <button class="qty-btn" onclick="updateQty(1)">+</button>
+                <span style="color: green; font-weight: bold; margin-right: 15px;">🎁 خصم 200ج لكل قطعتين</span>
+            </div>
+
+            <div id="dynamic-items-container"></div>
+
+            <button class="order-btn" onclick="goToCheckout()">🛒 اطلب الآن - احصل على خصم إضافي</button>
+        </div>
+    </div>
+</div>
+
+<!-- صفحة الدفع -->
+<div id="checkout-page" style="display: none; padding: 40px; max-width: 600px; margin: 0 auto;">
+    <button class="back-btn" onclick="goBack()">← الرجوع للمنتج</button>
+    <h1 style="font-family: 'Playfair Display', serif; margin-bottom: 20px;">إتمام الطلب</h1>
+
+    <div class="checkout-images-container" id="checkout-images-container"></div>
+
+    <div class="summary-box">
+        <div class="summary-row"><span>المنتج:</span> <span>طقم 2GETR</span></div>
+        <div id="checkout-items-details"></div>
+        <div class="summary-row"><span>عدد القطع:</span> <span id="sum-qty"></span></div>
+        <div class="summary-row" id="original-summary-row"><span>السعر قبل الخصم:</span> <span id="sum-original"></span></div>
+        <div class="summary-row discount" id="discount-summary-row"><span>الخصم المطبق:</span> <span id="sum-discount"></span></div>
+        <div class="summary-row"><span>سعر المنتج:</span> <span id="sum-price"></span></div>
+        <div class="summary-row"><span>مصاريف الشحن:</span> <span id="sum-shipping">65 ج</span></div>
+        <div class="summary-row total"><span>الإجمالي النهائي:</span> <span id="sum-total"></span></div>
+    </div>
+
+    <form onsubmit="submitOrder(event)">
+        <label>📞 رقم الهاتف:</label>
+        <div style="display: flex; gap: 10px;">
+            <span id="phone-prefix-display" style="background: #f0f0f0; padding: 12px; border-radius: 5px; font-weight: bold;">+20</span>
+            <input type="tel" id="phone" required placeholder="01xxxxxxxxx" style="flex: 1;">
+        </div>
+        
+        <label>📍 المحافظة:</label>
+        <select id="governorate" required>
+            <option value="">اختر المحافظة</option>
+            <option>القاهرة</option>
+            <option>الجيزة</option>
+            <option>الإسكندرية</option>
+            <option>القليوبية</option>
+            <option>الدقهلية</option>
+            <option>الشرقية</option>
+            <option>الغربية</option>
+            <option>المنوفية</option>
+            <option>البحيرة</option>
+            <option>كفر الشيخ</option>
+            <option>دمياط</option>
+            <option>بورسعيد</option>
+            <option>الإسماعيلية</option>
+            <option>السويس</option>
+            <option>شمال سيناء</option>
+            <option>جنوب سيناء</option>
+            <option>بني سويف</option>
+            <option>الفيوم</option>
+            <option>المنيا</option>
+            <option>أسيوط</option>
+            <option>سوهاج</option>
+            <option>قنا</option>
+            <option>الأقصر</option>
+            <option>أسوان</option>
+            <option>البحر الأحمر</option>
+            <option>الوادي الجديد</option>
+            <option>مطروح</option>
+        </select>
+
+        <label>🏠 العنوان بالتفصيل:</label>
+        <textarea id="address" rows="3" required placeholder="اسم الشارع، رقم العمارة، الدور، الشقة..."></textarea>
+
+        <button type="submit" class="order-btn" style="margin-top: 10px;">✅ تأكيد الطلب</button>
+    </form>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
