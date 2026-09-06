@@ -1,0 +1,526 @@
+// ============================================
+// 1. إعدادات تليجرام
+// ============================================
+const TELEGRAM_BOT_TOKEN = "8421587672:AAGLKUmRaoclQ3uvp_t5QojQH05fFPQfdFQ";
+const TELEGRAM_CHAT_ID = "5749060658";
+
+// ============================================
+// 2. قاعدة بيانات الألوان والصور
+// ============================================
+const colorSets = {
+    'beige': { 
+        name: 'بيج', 
+        images: ['beige_1.png', 'beige_2.png', 'beige_3.png', 'beige_4.png'] 
+    },
+    'green': { 
+        name: 'زيتي', 
+        images: ['green_1.png', 'green_2.png', 'green_3.png', 'green_4.png'] 
+    },
+    'grey': { 
+        name: 'رمادي', 
+        images: ['grey_1.png', 'grey_2.png', 'grey_3.png', 'grey_4.png'] 
+    }
+};
+
+// ============================================
+// 3. 40+ نص تسويقي محترف (Card Flip)
+// ============================================
+const marketingTexts = [
+    "🌟 خامة قطن 100% ناعمة كالحرير على بشرة طفلك",
+    "🎨 تصميم عصري يجعل طفلك الأجمل في كل مكان",
+    "💪 متين يتحمل اللعب والنشاط اليومي",
+    "🌬️ قطن مهوى يمنع التعرق والحساسية",
+    "👔 مناسب للمناسبات والخروجات العائلية",
+    "🎁 هدية مثالية لأطفالك في العيد والمناسبات",
+    "🏆 جودة عالية بسعر لا يُقارن",
+    "🌈 ألوان زاهية لا تبهت مع الغسيل",
+    "🛡️ مضاد للحساسية وآمن تماماً",
+    "👕 مقاسات تناسب جميع الأعمار من 2-12 سنة",
+    "✨ أناقة راقية تناسب شخصية طفلك المميزة",
+    "💎 خامة فاخرة تمنح طفلك الراحة طوال اليوم",
+    "🎈 تصميم مرح وألوان محببة للأطفال",
+    "🏅 منتج حاصل على تقييم 5 نجوم من العملاء",
+    "🔄 قابل للغسيل في الغسالة دون تلف",
+    "📦 تغليف أنيق مناسب كهدية مميزة",
+    "🎯 مقاس دقيق يناسب جسم الطفل بشكل مثالي",
+    "🌿 أقمشة صديقة للبيئة وخالية من المواد الضارة",
+    "🌟 ماركة My&U الأشهر في أزياء الأطفال",
+    "💫 تصميم فرنسي أنيق بخامات تركية فاخرة",
+    "🎪 مناسب للنادي والمدرسة والمنزل",
+    "👶 ناعم على بشرة الأطفال الحساسة",
+    "🏃 مرن يسمح بحرية الحركة واللعب",
+    "🌞 مناسب لفصل الصيف والطقس الحار",
+    "❄️ خفيف الوزن ولا يسبب تعرق",
+    "🎨 ألوان جذابة تناسب الأولاد والبنات",
+    "💯 ضمان الجودة من أول استخدام",
+    "🚚 شحن سريع لجميع المحافظات",
+    "💰 سعر مميز وعرض خاص لفترة محدودة",
+    "🎁 اطلب الآن واحصل على خصم إضافي",
+    "⭐ تقييمات إيجابية من مئات العملاء",
+    "🛒 العرض محدود - لا تفوت الفرصة",
+    "👑 طقم يليق بأطفالك في كل المناسبات",
+    "🌺 تصميم بسيط وأنيق في نفس الوقت",
+    "💪 قماش مقاوم للتجعد وسهل الكي",
+    "🎯 دقة في التفاصيل وجودة في الخياطة",
+    "🏆 نختار لك الأفضل دائماً من My&U",
+    "💖 حب أطفالك يبدأ من راحتهم وأناقتهم",
+    "🌟 استثمر في راحة طفلك وأناقته اليوم",
+    "🎈 ابتسامة طفلك تبدأ بملابس مريحة وجميلة"
+];
+
+// ============================================
+// 4. المتغيرات العامة
+// ============================================
+let currentColorKey = 'beige';
+let currentImages = colorSets[currentColorKey].images;
+let currentIndex = 0;
+let isAnimating = false;
+let isFlipped = false;
+let qty = 1;
+let subTotal = 700;
+let originalTotal = 700;
+let discount = 0;
+let currentSize = 2;
+let shippingFee = 65;
+let selectedCountryCode = '+20';
+
+// ============================================
+// 5. توليد أزرار المقاسات
+// ============================================
+const sizesContainer = document.getElementById('sizes-container');
+for (let i = 2; i <= 12; i++) {
+    let btn = document.createElement('button');
+    btn.className = 'size-btn' + (i === 2 ? ' active' : '');
+    btn.innerText = i;
+    btn.onclick = function() { 
+        document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentSize = i;
+    };
+    sizesContainer.appendChild(btn);
+}
+
+// ============================================
+// 6. تحديث رمز الدولة
+// ============================================
+function updatePhonePrefix() {
+    const select = document.getElementById('countryCode');
+    selectedCountryCode = select.value;
+    document.getElementById('phone-prefix-display').innerText = selectedCountryCode;
+}
+
+// ============================================
+// 7. دالة قلب البطاقة (Card Flip) مع نصوص تسويقية
+// ============================================
+function flipCard() {
+    if (isAnimating) return;
+    isAnimating = true;
+    
+    const container = document.getElementById('imageContainer');
+    const textElement = document.getElementById('marketingText');
+    
+    // اختيار نص تسويقي عشوائي
+    const randomText = marketingTexts[Math.floor(Math.random() * marketingTexts.length)];
+    textElement.innerText = randomText;
+    
+    // قلب البطاقة
+    container.classList.toggle('flipped');
+    isFlipped = !isFlipped;
+    
+    setTimeout(() => {
+        isAnimating = false;
+    }, 600);
+}
+
+// ============================================
+// 8. التنقل بين الصور (أنيميشن 0.5 ثانية)
+// ============================================
+function navigateImage(direction) {
+    if (isAnimating) return;
+    if (isFlipped) {
+        // إعادة البطاقة لوضعها الطبيعي قبل التنقل
+        document.getElementById('imageContainer').classList.remove('flipped');
+        isFlipped = false;
+        setTimeout(() => navigateImage(direction), 300);
+        return;
+    }
+    
+    isAnimating = true;
+    const img = document.getElementById('mainImage');
+    currentIndex = (currentIndex + direction + currentImages.length) % currentImages.length;
+    
+    img.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+    
+    if (direction === 1) {
+        img.style.transform = 'translateX(-60px) scale(0.9)';
+        img.style.opacity = '0';
+        setTimeout(() => {
+            img.src = currentImages[currentIndex];
+            img.style.transition = 'none';
+            img.style.transform = 'translateX(60px) scale(0.9)';
+            img.style.opacity = '0';
+            setTimeout(() => {
+                img.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                img.style.transform = 'translateX(0) scale(1)';
+                img.style.opacity = '1';
+                isAnimating = false;
+            }, 20);
+        }, 500);
+    } else {
+        img.style.transform = 'translateX(60px) scale(0.9)';
+        img.style.opacity = '0';
+        setTimeout(() => {
+            img.src = currentImages[currentIndex];
+            img.style.transition = 'none';
+            img.style.transform = 'translateX(-60px) scale(0.9)';
+            img.style.opacity = '0';
+            setTimeout(() => {
+                img.style.transition = 'transform 0.5s ease, opacity 0.5s ease';
+                img.style.transform = 'translateX(0) scale(1)';
+                img.style.opacity = '1';
+                isAnimating = false;
+            }, 20);
+        }, 500);
+    }
+}
+
+// ============================================
+// 9. اختيار اللون
+// ============================================
+function selectColor(colorKey) {
+    if (colorKey === currentColorKey) return;
+    currentColorKey = colorKey;
+    currentImages = colorSets[colorKey].images;
+    currentIndex = 0;
+    
+    const img = document.getElementById('mainImage');
+    img.style.transition = 'none';
+    img.style.opacity = '0';
+    setTimeout(() => {
+        img.src = currentImages[currentIndex];
+        img.style.transition = 'opacity 0.4s ease';
+        img.style.opacity = '1';
+    }, 50);
+    
+    // تحديث الصور المصغرة
+    document.querySelectorAll('.thumb').forEach((t, i) => {
+        t.classList.remove('active');
+        if (i === Object.keys(colorSets).indexOf(colorKey)) {
+            t.classList.add('active');
+        }
+    });
+    
+    // تحديث الألوان
+    document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+    const swatchIndex = ['beige', 'green', 'grey'].indexOf(colorKey);
+    document.querySelectorAll('.swatch')[swatchIndex].classList.add('active');
+    document.getElementById('color-name-display').innerText = 'اللون: ' + colorSets[colorKey].name;
+}
+
+// ============================================
+// 10. تحديث الكمية
+// ============================================
+function updateQty(delta) {
+    qty += delta;
+    if (qty < 1) qty = 1;
+    document.getElementById('qty-display').innerText = qty;
+    
+    subTotal = (Math.floor(qty / 2) * 1200) + ((qty % 2) * 700);
+    originalTotal = qty * 700;
+    discount = originalTotal - subTotal;
+    
+    const container = document.getElementById('dynamic-items-container');
+    if (qty === 1) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+    } else {
+        container.style.display = 'block';
+        renderItemsDetails();
+    }
+}
+
+// ============================================
+// 11. عرض تفاصيل القطع المتعددة
+// ============================================
+function renderItemsDetails() {
+    const container = document.getElementById('dynamic-items-container');
+    container.innerHTML = '';
+    
+    for (let i = 0; i < qty; i++) {
+        const div = document.createElement('div');
+        div.className = 'item-section';
+        div.innerHTML = `
+            <div class="item-title">القطعة ${i + 1}</div>
+            <label>اللون</label>
+            <select id="item-${i+1}-color">
+                <option value="بيج">بيج</option>
+                <option value="زيتي">زيتي</option>
+                <option value="رمادي">رمادي</option>
+            </select>
+            <label>المقاس</label>
+            <select id="item-${i+1}-size">
+                ${Array.from({length: 11}, (_, j) => `<option value="${j+2}">${j+2}</option>`).join('')}
+            </select>
+        `;
+        container.appendChild(div);
+    }
+}
+
+// ============================================
+// 12. عرض تفاصيل المنتج
+// ============================================
+function toggleDetails() {
+    const details = document.getElementById('more-details');
+    details.style.display = details.style.display === 'none' || details.style.display === '' ? 'block' : 'none';
+}
+
+// ============================================
+// 13. الذهاب لصفحة الدفع
+// ============================================
+function goToCheckout() {
+    document.getElementById('main-page').style.display = 'none';
+    document.getElementById('checkout-page').style.display = 'block';
+    window.scrollTo(0, 0);
+    
+    // صور المنتج
+    const imagesContainer = document.getElementById('checkout-images-container');
+    imagesContainer.innerHTML = '';
+    
+    if (qty === 1) {
+        const img = document.createElement('img');
+        img.src = currentImages[currentIndex];
+        imagesContainer.appendChild(img);
+    } else {
+        for (let i = 0; i < qty; i++) {
+            const colorName = document.getElementById(`item-${i+1}-color`).value;
+            const colorKey = Object.keys(colorSets).find(key => colorSets[key].name === colorName);
+            if (colorKey) {
+                const img = document.createElement('img');
+                img.src = colorSets[colorKey].images[0];
+                imagesContainer.appendChild(img);
+            }
+        }
+    }
+    
+    // تفاصيل الطلب
+    let itemsDetailsHTML = '';
+    if (qty === 1) {
+        const color = colorSets[currentColorKey].name;
+        const size = currentSize;
+        itemsDetailsHTML += `
+            <div class="summary-row">
+                <span>القطعة 1:</span>
+                <span>${color} - مقاس ${size}</span>
+            </div>
+        `;
+    } else {
+        for (let i = 0; i < qty; i++) {
+            const color = document.getElementById(`item-${i+1}-color`).value;
+            const size = document.getElementById(`item-${i+1}-size`).value;
+            itemsDetailsHTML += `
+                <div class="summary-row">
+                    <span>القطعة ${i+1}:</span>
+                    <span>${color} - مقاس ${size}</span>
+                </div>
+            `;
+        }
+    }
+    document.getElementById('checkout-items-details').innerHTML = itemsDetailsHTML;
+    
+    // الحسابات
+    document.getElementById('sum-qty').innerText = qty + ' قطعة';
+    document.getElementById('sum-price').innerText = subTotal + ' ج';
+    document.getElementById('sum-total').innerText = (subTotal + shippingFee) + ' ج';
+    
+    const originalRow = document.getElementById('original-summary-row');
+    const discountRow = document.getElementById('discount-summary-row');
+    
+    if (qty === 1) {
+        originalRow.style.display = 'none';
+        discountRow.style.display = 'none';
+    } else {
+        originalRow.style.display = 'flex';
+        discountRow.style.display = 'flex';
+        document.getElementById('sum-original').innerText = originalTotal + ' ج';
+        document.getElementById('sum-discount').innerText = "- " + discount + " ج";
+    }
+}
+
+// ============================================
+// 14. العودة للصفحة الرئيسية
+// ============================================
+function goBack() {
+    document.getElementById('main-page').style.display = 'block';
+    document.getElementById('checkout-page').style.display = 'none';
+}
+
+// ============================================
+// 15. إرسال الطلب لتليجرام (مع حماية ضد XSS)
+// ============================================
+async function submitOrder(e) {
+    e.preventDefault();
+    const submitBtn = document.querySelector('#checkout-page button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.innerText = "⏳ جاري إرسال الطلب...";
+    
+    // جمع البيانات مع تنقية المدخلات (حماية XSS)
+    let itemsDetails = [];
+    if (qty === 1) {
+        const color = sanitizeInput(colorSets[currentColorKey].name);
+        const size = sanitizeInput(currentSize.toString());
+        itemsDetails.push(`قطعة 1: ${color} - مقاس ${size}`);
+    } else {
+        for (let i = 0; i < qty; i++) {
+            const color = sanitizeInput(document.getElementById(`item-${i+1}-color`).value);
+            const size = sanitizeInput(document.getElementById(`item-${i+1}-size`).value);
+            itemsDetails.push(`قطعة ${i+1}: ${color} - مقاس ${size}`);
+        }
+    }
+    
+    const phone = sanitizeInput(document.getElementById('phone').value);
+    const gov = sanitizeInput(document.getElementById('governorate').value);
+    const address = sanitizeInput(document.getElementById('address').value);
+    const fullPhone = selectedCountryCode + phone;
+    
+    // بناء الرسالة
+    let message = `
+🛒 *طلب جديد من موقع My&U*
+———————————
+🌍 *الدولة:* ${selectedCountryCode}
+👕 *المنتج:* طقم 2GETR
+📦 *تفاصيل القطع:*
+${itemsDetails.join('\n')}
+———————————
+📞 *رقم الهاتف:* ${fullPhone}
+📍 *المحافظة:* ${gov}
+🏠 *العنوان:* ${address}
+———————————
+💰 *السعر قبل الخصم:* ${originalTotal} ج
+🎁 *الخصم:* -${discount} ج
+💵 *السعر بعد الخصم:* ${subTotal} ج
+🚚 *الشحن:* ${shippingFee} ج
+✅ *الإجمالي النهائي:* ${subTotal + shippingFee} ج
+`;
+    
+    if (qty === 1) {
+        message = `
+🛒 *طلب جديد من موقع My&U*
+———————————
+🌍 *الدولة:* ${selectedCountryCode}
+👕 *المنتج:* طقم 2GETR
+📦 *تفاصيل القطع:*
+${itemsDetails.join('\n')}
+———————————
+📞 *رقم الهاتف:* ${fullPhone}
+📍 *المحافظة:* ${gov}
+🏠 *العنوان:* ${address}
+———————————
+💵 *سعر المنتج:* ${subTotal} ج
+🚚 *الشحن:* ${shippingFee} ج
+✅ *الإجمالي النهائي:* ${subTotal + shippingFee} ج
+`;
+    }
+    
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                chat_id: TELEGRAM_CHAT_ID, 
+                text: message, 
+                parse_mode: 'Markdown' 
+            })
+        });
+        const data = await response.json();
+        
+        if (data.ok) {
+            alert("✅ شكراً لطلبك من براند My&U! ❤\nتم استلام طلبك بنجاح، وسيتم التواصل معك قريباً لتأكيده.");
+            document.getElementById('phone').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('governorate').selectedIndex = 0;
+        } else {
+            alert("❌ حدث خطأ في الإرسال. تأكد من الاتصال بالإنترنت وحاول مرة أخرى.");
+        }
+    } catch (error) {
+        alert("❌ تعذر الاتصال بخادم التليجرام. تأكد من الإنترنت.");
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerText = "✅ تأكيد الطلب";
+    }
+}
+
+// ============================================
+// 16. دالة تنقية المدخلات (حماية XSS)
+// ============================================
+function sanitizeInput(input) {
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+}
+
+// ============================================
+// 17. المؤقت التنازلي (تحفيز الشراء)
+// ============================================
+let timeLeft = 86400; // 24 ساعة بالثواني
+
+function startCountdown() {
+    const timerElement = document.getElementById('countdown');
+    setInterval(() => {
+        if (timeLeft <= 0) {
+            timerElement.innerText = "00:00:00";
+            return;
+        }
+        timeLeft--;
+        const hours = Math.floor(timeLeft / 3600);
+        const minutes = Math.floor((timeLeft % 3600) / 60);
+        const seconds = timeLeft % 60;
+        timerElement.innerText = 
+            String(hours).padStart(2, '0') + ':' + 
+            String(minutes).padStart(2, '0') + ':' + 
+            String(seconds).padStart(2, '0');
+    }, 1000);
+}
+
+// ============================================
+// 18. نافذة منبثقة عند الخروج (تحفيز الشراء)
+// ============================================
+let exitPopupShown = false;
+
+document.addEventListener('mouseleave', (e) => {
+    if (e.clientY < 0 && !exitPopupShown) {
+        exitPopupShown = true;
+        const popup = document.createElement('div');
+        popup.className = 'exit-popup';
+        popup.innerHTML = `
+            <h3>🎁 انتظر! لا تفوت العرض!</h3>
+            <p>خصم 200ج على كل قطعتين + شحن مجاني للطلبات فوق 500ج</p>
+            <button onclick="this.parentElement.remove()">🛒 استمر في التسوق</button>
+            <button onclick="window.location.href='#checkout-page'" style="background: #e74c3c; color: white;">
+                ✅ أطلب الآن
+            </button>
+        `;
+        document.body.appendChild(popup);
+        
+        setTimeout(() => {
+            if (popup.parentElement) popup.remove();
+        }, 10000);
+    }
+});
+
+// ============================================
+// 19. تهيئة الموقع
+// ============================================
+document.addEventListener('DOMContentLoaded', () => {
+    selectColor('beige');
+    updateQty(0);
+    startCountdown();
+    document.getElementById('phone-prefix-display').innerText = '+20';
+    
+    // منع الضغط المزدوج للصور
+    document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            this.disabled = true;
+            setTimeout(() => { this.disabled = false; }, 600);
+        });
+    });
+});
